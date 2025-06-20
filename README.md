@@ -51,12 +51,14 @@ Once installed, you can use the `whisper` command as follows:
 
 ```bash
 whisper decrypt -m
+whisper decrypt -m -f <file_path.json>
 ```
 
 ### 📂 Decrypt an attachment
 
 ```bash
 whisper decrypt -a
+whisper decrypt -a -f <file_path.enc>
 ```
 
 ### 🔑 Change your passphrase

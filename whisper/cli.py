@@ -91,6 +91,8 @@ def cli(ctx):
         click.secho("Available Commands:", fg="blue", bold=True)
         click.echo("  decrypt -m            Decrypt a message")
         click.echo("  decrypt -a            Decrypt a file attachment")
+        click.echo("  decrypt -m -f <message_file_path>   Decrypt a message with filepath")
+        click.echo("  decrypt -a -f <attachment_file_path>   Decrypt a file with -f option")
         click.echo("  change-passphrase     Change your passphrase")
         click.echo("  help                  Show command list and usage")
         click.echo()
@@ -109,16 +111,13 @@ def decrypt(mode_message, mode_attachment, encrypted_file):
     elif not mode_message and not mode_attachment:
         raise click.UsageError("You must provide either -m or -a.")
 
-    if encrypted_file and not mode_attachment:
-        raise click.UsageError("Option --encrypted-file/-f is only valid with -a (attachment mode).")
-
     # Expand ~ if needed
     file_path = Path(encrypted_file).expanduser() if encrypted_file else None
 
     encrypted_key_path = _get_encrypted_key_path()
 
     if mode_message:
-        key_path = decrypt_message(encrypted_key_path)
+        key_path = decrypt_message(encrypted_key_path, encrypted_message_json=file_path)
 
     elif mode_attachment:
         if not file_path:

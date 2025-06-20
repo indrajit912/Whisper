@@ -191,15 +191,18 @@ def _decrypt_private_key_with_gpg(encrypted_key_path, passphrase):
         click.secho(f"❌ Failed to decrypt private key with GPG: {e}", fg="red", bold=True)
         return None
 
-def decrypt_message(encrypted_key_path):
+def decrypt_message(encrypted_key_path, encrypted_message_json:Path=None):
     click.secho("\n📨 Paste the content of the message.json file (end with an empty line):", fg="cyan", bold=True)
     
-    b64_blob = ""
-    while True:
-        line = input()
-        if not line.strip():
-            break
-        b64_blob += line.strip()
+    if encrypted_message_json is None:
+        b64_blob = ""
+        while True:
+            line = input()
+            if not line.strip():
+                break
+            b64_blob += line.strip()
+    else:
+        b64_blob = encrypted_message_json.read_text()
 
     try:
         # Get the key_path
