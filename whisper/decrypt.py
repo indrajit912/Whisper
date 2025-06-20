@@ -192,9 +192,9 @@ def _decrypt_private_key_with_gpg(encrypted_key_path, passphrase):
         return None
 
 def decrypt_message(encrypted_key_path, encrypted_message_json:Path=None):
-    click.secho("\n📨 Paste the content of the message.json file (end with an empty line):", fg="cyan", bold=True)
     
     if encrypted_message_json is None:
+        click.secho("\n📨 Paste the content of the message.json file (end with an empty line):", fg="cyan", bold=True)
         b64_blob = ""
         while True:
             line = input()
