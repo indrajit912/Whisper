@@ -60,6 +60,7 @@ import click
 from .decrypt import decrypt_message, decrypt_attachment, _get_encrypted_key_path
 from .passphrase import change_passphrase
 from whisper.utils.io import get_flashdrive_with_secret_dir, _cleanup_key
+from whisper import __version__
 
 @click.group(invoke_without_command=True)
 @click.pass_context
@@ -67,20 +68,33 @@ def cli(ctx):
     """
     🔐 Whisper Message Decryption Utility
 
-    Author: Indrajit Ghosh
-    Last modified: Jun 20, 2025
+    Developed by: Indrajit Ghosh
     """
-    click.secho("=== Decryption Utility For Whisper Messages ===", fg="cyan", bold=True)
-    click.secho("Author: Indrajit Ghosh", fg="magenta")
-    click.secho("Last modified: Jun 19, 2025\n", fg="magenta")
+
+    click.clear()
+
+    click.secho("=" * 60, fg="cyan", bold=True)
+    click.secho("🔐 Whisper Message Decryption Utility", fg="cyan", bold=True)
+    click.secho("=" * 60, fg="cyan", bold=True)
+    click.echo()
+
+    click.secho("Copyright © 2025 Indrajit Ghosh", fg="magenta")
+    click.secho("All rights reserved.", fg="magenta")
+    click.echo()
+
+    click.secho(f"Version: {__version__}", fg="yellow")
+    click.secho("Created on: April 21, 2025", fg="yellow")
+    click.secho("Last Modified: June 20, 2025", fg="yellow")
+    click.echo()
 
     if ctx.invoked_subcommand is None:
-        click.secho("Use one of the following commands:", fg="blue", bold=True)
-        click.echo("  decrypt -m    Decrypt a message")
-        click.echo("  decrypt -a    Decrypt a file attachment")
-        click.echo("  change-passphrase    Change your passphrase")
-        click.echo("  help                 Show command list and usage")
-        click.echo("\nRun with --help after any command for more options.")
+        click.secho("Available Commands:", fg="blue", bold=True)
+        click.echo("  decrypt -m            Decrypt a message")
+        click.echo("  decrypt -a            Decrypt a file attachment")
+        click.echo("  change-passphrase     Change your passphrase")
+        click.echo("  help                  Show command list and usage")
+        click.echo()
+        click.secho("Use --help after any command for more information.", fg="green")
 
 
 @cli.command()

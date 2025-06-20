@@ -38,16 +38,15 @@ def _prompt_passphrase_from_user_and_get_keypath(encrypted_key_path):
 
     Exits the program if decryption fails.
     """
-    print("-" * 30 + " Decryption " + "-" * 30)
+    click.secho("-" * 30 + " Decryption " + "-" * 30, fg="cyan", bold=True)
 
     passphrase, flashdrive_path, secret_dir, passphrase_file = _load_passphrase_from_flashdrive()
 
     if not passphrase:
         # Either there is no saved passphrase found at the flashdrive or the passphrase is invalid.
         click.secho(
-            "Warning: Either there is no saved passphrase found at the flashdrive or the passphrase is invalid.",
-            fg="yellow",
-            bold=True
+            "⚠️  Warning: Either there is no saved passphrase found at the flashdrive or the passphrase is invalid.",
+            fg="yellow", bold=True
         )
         
         # Prompt user for passphrase
@@ -65,44 +64,47 @@ def _prompt_passphrase_from_user_and_get_keypath(encrypted_key_path):
                 try:
                     secret_dir.mkdir(parents=True, exist_ok=True)
                     passphrase_file.write_text(passphrase, encoding='utf-8')
-                    print(f"[Info] Passphrase saved to: {passphrase_file}\n\n")
+                    click.secho(f"[Info] Passphrase saved to: {passphrase_file}\n", fg="blue")
                 except Exception as e:
-                    print(f"[Error] Failed to save passphrase to flashdrive: {e}")
+                    click.secho(f"[Error] Failed to save passphrase to flashdrive: {e}", fg="red", bold=True)
 
     decrypted_key_path = _decrypt_private_key_with_gpg(encrypted_key_path, passphrase)
 
     if not decrypted_key_path:
-        print("\n[Error] Failed to decrypt the private key.")
+        click.secho("\n[Error] Failed to decrypt the private key.", fg="red", bold=True)
         sys.exit(1)
 
     return decrypted_key_path
 
 def _get_encrypted_key_path():
     if not DEFAULT_KEYS_DIR.exists():
-        DEFAULT_KEYS_DIR.mkdir()
+        DEFAULT_KEYS_DIR.mkdir(parents=True, exist_ok=True)
     
     encrypted_key_path = DEFAULT_KEYS_DIR / "rsa_private_key.pem.gpg"
     
     if not encrypted_key_path.exists():
-        print(f"\n[Info] No encrypted RSA key found at: {encrypted_key_path}")
+        click.secho(f"\n[Info] No encrypted RSA key found at: {encrypted_key_path}", fg="yellow")
         
         private_key_path_input = input("Enter the path to your RSA private key (.pem): ").strip()
         private_key_path = Path(private_key_path_input).expanduser()
         
         if not private_key_path.exists():
-            print(f"[Error] Private key file not found at: {private_key_path}")
+            click.secho(f"[Error] Private key file not found at: {private_key_path}", fg="red", bold=True)
             sys.exit(1)
         
-        passphrase = _prompt_passphrase_with_confirmation("Enter passphrase to encrypt the private key", "Confirm passphrase")
+        passphrase = _prompt_passphrase_with_confirmation(
+            "Enter passphrase to encrypt the private key", 
+            "Confirm passphrase"
+        )
         
         encrypted_key_path = _encrypt_private_key_with_gpg(private_key_path, passphrase)
         
         if not encrypted_key_path:
-            print("[Error] Encryption failed.")
+            click.secho("[Error] Encryption failed.", fg="red", bold=True)
             sys.exit(1)
         
-        print(f"\nPrivate key has been encrypted and stored at: {encrypted_key_path}")
-        print("Remember this passphrase for future use!")
+        click.secho(f"\n🔐 Private key has been encrypted and stored at: {encrypted_key_path}", fg="green", bold=True)
+        click.secho("💡 Remember this passphrase for future use!", fg="blue")
 
     return encrypted_key_path
 
@@ -119,7 +121,7 @@ def _encrypt_private_key_with_gpg(private_key_path, passphrase):
         Path or None: Path to the encrypted key file if successful, else None.
     """
     encrypted_key_path = Path.home() / ".keys" / "rsa_private_key.pem.gpg"
-    
+
     try:
         subprocess.run(
             [
@@ -129,7 +131,7 @@ def _encrypt_private_key_with_gpg(private_key_path, passphrase):
             ],
             check=True
         )
-        print(f"Private key encrypted and saved to: {encrypted_key_path}")
+        click.secho(f"🔐 Private key encrypted and saved to: {encrypted_key_path}", fg="green", bold=True)
 
         # Save the passphrase hash
         PASSPHRASE_HASH_FILE.write_text(sha256_hash(passphrase), encoding='utf-8')
@@ -144,13 +146,14 @@ def _encrypt_private_key_with_gpg(private_key_path, passphrase):
             passphrase_file = secret_dir / passphrase_file_name
 
             passphrase_file.write_text(passphrase, encoding='utf-8')
-            print(f"[Info] Passphrase saved to: {passphrase_file}\n\n")
-
+            click.secho(f"[Info] Passphrase saved to: {passphrase_file}\n", fg="blue")
 
         return encrypted_key_path
+
     except subprocess.CalledProcessError as e:
-        print(f"[Error] Failed to encrypt private key: {e}")
+        click.secho(f"[Error] Failed to encrypt private key: {e}", fg="red", bold=True)
         return None
+
 
 def _decrypt_private_key_with_gpg(encrypted_key_path, passphrase):
     """
@@ -168,12 +171,12 @@ def _decrypt_private_key_with_gpg(encrypted_key_path, passphrase):
     """
     # --- Step 1: Verify passphrase hash ---
     if not _verify_passphrase_hash(passphrase, PASSPHRASE_HASH_FILE):
-        print("[Error] Passphrase verification failed: hash mismatch.")
+        click.secho("[Error] Passphrase verification failed: hash mismatch.", fg="red", bold=True)
         sys.exit(1)
 
     # --- Step 2: Decrypt using GPG ---
     decrypted_key_path = encrypted_key_path.with_suffix('')
-    
+
     try:
         subprocess.run(
             [
@@ -182,14 +185,15 @@ def _decrypt_private_key_with_gpg(encrypted_key_path, passphrase):
             ],
             check=True
         )
-        print(f"Private key decrypted and saved to: {decrypted_key_path}")
+        click.secho(f"🔐 Private key decrypted and saved to: {decrypted_key_path}", fg="green", bold=True)
         return decrypted_key_path
     except subprocess.CalledProcessError as e:
-        print(f"Failed to decrypt private key with GPG: {e}")
+        click.secho(f"❌ Failed to decrypt private key with GPG: {e}", fg="red", bold=True)
         return None
 
 def decrypt_message(encrypted_key_path):
-    print("\nPaste the content of the message.json file (end with an empty line):")
+    click.secho("\n📨 Paste the content of the message.json file (end with an empty line):", fg="cyan", bold=True)
+    
     b64_blob = ""
     while True:
         line = input()
@@ -201,12 +205,14 @@ def decrypt_message(encrypted_key_path):
         # Get the key_path
         key_path = _prompt_passphrase_from_user_and_get_keypath(encrypted_key_path)
         decrypted_text = decrypt_with_private_key(str(key_path), b64_blob)
-        print("\n\nDecrypted message:")
-        print(decrypted_text)
+        
+        click.secho("\n🔓 Decrypted message:", fg="green", bold=True)
+        click.echo(decrypted_text)
+
         return key_path
 
     except Exception as e:
-        print(f"\n[Decryption Failed] {e}")
+        click.secho(f"\n❌ [Decryption Failed] {e}", fg="red", bold=True)
 
 def decrypt_attachment(encrypted_key_path, encrypted_file_path=None):
     try:
@@ -218,9 +224,10 @@ def decrypt_attachment(encrypted_key_path, encrypted_file_path=None):
             encrypted_file_path=encrypted_file_path,
             output_dir=encrypted_file_path.parent
         )
-        print(f"\nDecrypted file saved as: {decrypted_file_path}")
 
+        click.secho(f"\n✅ Decrypted file saved as: {decrypted_file_path}", fg="green", bold=True)
         return key_path
 
     except Exception as e:
-        print(f"\n[Decryption Failed] {e}")
+        click.secho(f"\n❌ [Decryption Failed] {e}", fg="red", bold=True)
+

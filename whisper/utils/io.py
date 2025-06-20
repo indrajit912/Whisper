@@ -53,7 +53,9 @@ def get_flashdrive_with_secret_dir(secret_dir_name=FLASHDRIVE_SECRET_DIR_NAME):
 def _verify_passphrase_hash(passphrase: str, hash_file: Path):
     """
     Verifies that the SHA-256 hash of the given passphrase matches
-    the stored hash in the specified hash filFLASHDRIVE
+    the stored hash in the specified hash file.
+
+    Args:
         passphrase (str): The passphrase to verify.
         hash_file (Path): Path to the file containing the stored hash.
 
@@ -63,13 +65,14 @@ def _verify_passphrase_hash(passphrase: str, hash_file: Path):
     if not hash_file.exists():
         # Save the hash
         PASSPHRASE_HASH_FILE.write_text(sha256_hash(passphrase), encoding='utf-8')
-        print("[Info] Password hash saved for future use.\n")
+        click.secho("[Info] Password hash saved for future use.\n", fg="blue")
         return True
 
     stored_hash = hash_file.read_text(encoding='utf-8').strip()
     computed_hash = sha256_hash(passphrase)
 
     return computed_hash == stored_hash
+
 
 def _load_passphrase_from_flashdrive():
     secret_dir_name = FLASHDRIVE_SECRET_DIR_NAME
@@ -90,15 +93,16 @@ def _load_passphrase_from_flashdrive():
                 if not _verify_passphrase_hash(passphrase, PASSPHRASE_HASH_FILE):
                     passphrase = None
                 else:
-                    print("[Info] Passphrase loaded from flashdrive.\n")
+                    click.secho("[Info] Passphrase loaded from flashdrive.\n", fg="blue")
             except Exception as e:
-                print(f"[Warning] Could not read passphrase file: {e}")
+                click.secho(f"[Warning] Could not read passphrase file: {e}", fg="yellow", bold=True)
     
     return passphrase, flashdrive_path, secret_dir, passphrase_file
+
 
 def _cleanup_key(key_path):
     try:
         key_path.unlink()
-        click.secho("[✓] Decrypted private key removed from disk.", fg="green")
+        click.secho("[✓] Decrypted private key removed from disk.", fg="green", bold=True)
     except Exception as e:
-        click.secho(f"[!] Warning: Failed to delete decrypted private key: {e}", fg="yellow")
+        click.secho(f"[!] Warning: Failed to delete decrypted private key: {e}", fg="yellow", bold=True)
