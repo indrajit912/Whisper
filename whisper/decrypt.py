@@ -202,7 +202,15 @@ def decrypt_message(encrypted_key_path, encrypted_message_json:Path=None):
                 break
             b64_blob += line.strip()
     else:
-        b64_blob = encrypted_message_json.read_text()
+        try:
+            b64_blob = encrypted_message_json.read_text()
+        except UnicodeDecodeError as e:
+            click.secho(
+                f"\n❌ [Decryption Failed] The file you selected may not be an encrypted message.",
+                fg="red",
+                bold=True
+            )
+            return
 
     try:
         # Get the key_path
@@ -232,5 +240,5 @@ def decrypt_attachment(encrypted_key_path, encrypted_file_path=None):
         return key_path
 
     except Exception as e:
-        click.secho(f"\n❌ [Decryption Failed] {e}", fg="red", bold=True)
+        click.secho(f"\n❌ [Decryption Failed] The file you selected may not be an encrypted attachment.", fg="red", bold=True)
 
