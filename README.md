@@ -1,11 +1,16 @@
-# Whisper CLI
-
-# Whisper CLI
+# Whisper
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 
-**Whisper** is a command-line application for decrypting confidential messages and attachments encrypted by your website's "Whisper" system. It also allows secure passphrase management.
+**Whisper** is a command-line application for decrypting confidential messages and attachments encrypted by my website's "Whisper" system. It also allows secure passphrase management.
+
+---
+
+## 🧑‍💻 Author
+
+**[Indrajit Ghosh](https://indrajitghosh.onrender.com)** <br>
+Indian Statistical Institute, Bangalore
 
 ---
 
@@ -78,31 +83,6 @@ The following predefined constants are used internally:
 ## 🧪 Testing
 
 To be added later. You can start by adding tests under the `tests/` directory using `pytest` or any framework of your choice.
-
----
-
-## 📁 Project Structure
-
-```
-whisper/
-├── whisper/
-│   ├── cli.py              # Main CLI using click
-│   ├── decrypt.py          # Message and attachment decryption logic
-│   ├── passphrase.py       # Passphrase management logic
-│   └── config.py           # Constants and path definitions
-├── tests/                  # Test suite
-├── README.md
-├── .gitignore
-├── requirements.txt
-└── setup.py
-```
-
----
-
-## 🧑‍💻 Author
-
-**[Indrajit Ghosh](https://indrajitghosh.onrender.com)** <br>
-Indian Statistical Institute, Bangalore
 
 ---
 

@@ -100,24 +100,34 @@ def cli(ctx):
 @cli.command()
 @click.option('-m', 'mode_message', is_flag=True, help='Decrypt a message.')
 @click.option('-a', 'mode_attachment', is_flag=True, help='Decrypt an attachment.')
-def decrypt(mode_message, mode_attachment):
+@click.option('-f', '--encrypted-file', type=click.Path(exists=True, dir_okay=False),
+              help='Path to the encrypted file (required for -a mode).')
+def decrypt(mode_message, mode_attachment, encrypted_file):
     """Decrypt a whisper message or attachment."""
     if mode_message and mode_attachment:
         raise click.UsageError("Use only one of -m or -a at a time.")
     elif not mode_message and not mode_attachment:
         raise click.UsageError("You must provide either -m or -a.")
-    
+
+    if encrypted_file and not mode_attachment:
+        raise click.UsageError("Option --encrypted-file/-f is only valid with -a (attachment mode).")
+
+    # Expand ~ if needed
+    file_path = Path(encrypted_file).expanduser() if encrypted_file else None
+
     encrypted_key_path = _get_encrypted_key_path()
 
     if mode_message:
         key_path = decrypt_message(encrypted_key_path)
+
     elif mode_attachment:
-        while True:
-            raw_path = click.prompt("Enter the path to the encrypted file (e.g. ~/instance/encrypted_attachments/xyz.enc)")
-            file_path = Path(raw_path).expanduser()
-            if file_path.exists() and file_path.is_file():
-                break
-            click.secho("❌ Invalid file path. Please try again.", fg="red")
+        if not file_path:
+            while True:
+                raw_path = click.prompt("Enter the path to the encrypted file (e.g. ~/instance/encrypted_attachments/xyz.enc)")
+                file_path = Path(raw_path).expanduser()
+                if file_path.exists() and file_path.is_file():
+                    break
+                click.secho("❌ Invalid file path. Please try again.", fg="red")
 
         key_path = decrypt_attachment(
             encrypted_key_path=encrypted_key_path,
@@ -125,6 +135,7 @@ def decrypt(mode_message, mode_attachment):
         )
 
     _cleanup_key(key_path=key_path)
+
 
 @cli.command()
 def change_passphrase_cmd():
