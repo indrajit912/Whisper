@@ -3,8 +3,12 @@ import getpass
 from pathlib import Path
 import click
 from whisper.utils.crypto import sha256_hash
-from whisper.utils.prompts import _prompt_passphrase_with_confirmation
-from whisper.config import FLASHDRIVE_SECRET_DIR_NAME, PASSPHRASE_HASH_FILE, FLASHDRIVE_PASSPHRASE_FILENAME
+from whisper.config import (
+    FLASHDRIVE_SECRET_DIR_NAME, 
+    PASSPHRASE_HASH_FILE, 
+    FLASHDRIVE_PASSPHRASE_FILENAME,
+    RSA_PRIVATE_KEY_FILE
+)
 
 def get_flashdrive_with_secret_dir(secret_dir_name=FLASHDRIVE_SECRET_DIR_NAME):
     """
@@ -101,6 +105,11 @@ def _load_passphrase_from_flashdrive():
 
 
 def _cleanup_key(key_path):
+    if key_path is None:
+        # Try to remove the default rsa_private_key.pem file
+        RSA_PRIVATE_KEY_FILE.unlink(missing_ok=True)
+        click.secho("[✓] Decrypted private key removed from disk.", fg="green", bold=True)
+        return
     try:
         key_path.unlink()
         click.secho("[✓] Decrypted private key removed from disk.", fg="green", bold=True)
