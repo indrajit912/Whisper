@@ -1,0 +1,62 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Python cache and logs
+*.log
+*.pot
+*.mo
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+coverage.xml
+.cache
+.pytest_cache/
+
+# MyPy, Pyre, Pyright
+.mypy_cache/
+.pyre/
+.pyright/
+
+# Secrets and local config
+*.env
+.env.*
+.whisper_passphrase
+whisper_config.json
+.secret_keys/
+.keys/
+
+# macOS, Windows
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*~
+
+# Ignore zipped exports or temp files
+*.zip
+*.bak
+*.tmp
